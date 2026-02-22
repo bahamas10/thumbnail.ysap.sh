@@ -8,10 +8,80 @@
  *
  * # Contributors
  * - Dave Eddy <ysap@daveeddy.com>
+ * - Harry Skerritt <contact@harryskerritt.co.uk>
  */
 
 let lastVideoId = null;
 let font = 'Arial';
+
+// Google font picker
+const fontInput = document.getElementById('font-input');
+
+async function setupFontPicker() {
+    try {
+        const resp = await fetch('https://raw.githubusercontent.com/jonathantneal/google-fonts-complete/refs/heads/master/google-fonts.json');
+        const fonts = await resp.json();
+        const fontNames = Object.keys(fonts);
+
+        // Sort names alphabetically
+        fontNames.sort();
+
+        fontInput.innerHTML = '';
+
+        // Add a default Arial option first
+        const defaultOpt = document.createElement('option');
+        defaultOpt.value = 'Arial';
+        defaultOpt.textContent = 'Arial (Default)';
+        fontInput.appendChild(defaultOpt);
+
+        // Populate with Google Fonts
+        fontNames.forEach(name => {
+            const option = document.createElement('option');
+            option.value = name;
+            option.textContent = name;
+            fontInput.appendChild(option);
+        });
+
+        console.log(`Loaded ${fontNames.length} fonts into dropdown.`);
+    } catch (err) {
+        console.error("Could not load Google Fonts list", err);
+        fontInput.innerHTML = '<option value="Arial">Error loading fonts</option>';
+    }
+}
+
+setupFontPicker();
+
+async function syncFont() {
+    const selectedFont = fontInput.value;
+    if (!selectedFont || selectedFont === 'Arial') {
+        font = 'Arial';
+        return;
+    }
+
+    const linkId = 'dynamic-google-font';
+    let link = document.getElementById(linkId);
+    if (!link) {
+        link = document.createElement('link');
+        link.id = linkId;
+        link.rel = 'stylesheet';
+        document.head.appendChild(link);
+    }
+
+    link.href = `https://fonts.googleapis.com/css?family=${selectedFont.replace(/ /g, '+')}&display=swap`;
+
+    try {
+        // Wait for the font to be loaded in the browser
+        await document.fonts.load(`1em "${selectedFont}"`);
+
+        await new Promise(resolve => setTimeout(resolve, 50));
+        font = selectedFont;
+        console.log(`Font "${selectedFont}" is ready.`);
+    } catch (e) {
+        console.warn('Font failed to load', e);
+        font = 'Arial';
+    }
+}
+
 
 // allow user to press enter
 let urlInput = document.getElementById('url-input');
@@ -95,6 +165,8 @@ function downloadAll() {
 
 // generate button
 async function generate() {
+    await syncFont();
+
     let output = document.getElementById('output');
     const url = document.getElementById('url-input').value.trim();
     const videoId = getYouTubeID(url);
@@ -103,6 +175,8 @@ async function generate() {
         alert('invalid youtube url');
         return;
     }
+
+
 
     const api = 'https://noembed.com/embed?url=' + encodeURIComponent(url);
 
@@ -125,8 +199,11 @@ function process(data, videoId) {
     img.crossOrigin = 'anonymous';
     img.src = videoIdToThumbnail(videoId);
 
-    img.onload = function onload() {
+    img.onload = async function onload() {
         lastVideoId = videoId;
+
+        await syncFont();
+
         drawImages(img, data, videoId);
 
         document.getElementById('downloadBtn').style.display = 'inline-block';
@@ -193,7 +270,7 @@ function drawFullImage(output, img, data, videoId) {
 
     // "Full Video on YouTube"
     const headline = 'Full Video on YouTube';
-    ctx.font = `110px ${font}`;
+    ctx.font = `110px "${font}", sans-serif`;
     ctx.fillStyle = "#eee";
     ctx.textAlign = "center";
     const x = canvas.width / 2;
@@ -215,7 +292,7 @@ function drawFullImage(output, img, data, videoId) {
     // write the title
     ctx.textAlign = "left";
     ctx.fillStyle = "#eee";
-    ctx.font = `56px ${font}`;
+    ctx.font = `56px "${font}", sans-serif`;
     const lines = wrapText(ctx, data.title, 1240);
     lines.forEach((line, i) => {
         ctx.fillText(line, 20, 1100 + i * 56);
@@ -223,13 +300,13 @@ function drawFullImage(output, img, data, videoId) {
 
     // write the author name
     ctx.fillStyle = "#aaa";
-    ctx.font = `28px ${font}`;
+    ctx.font = `28px "${font}", sans-serif`;
     ctx.fillText(`YouTube: ${data.author_name}`, 20, 1100 + lines.length * 58 - 20);
 
     // write the url
     const urlText = shortUrl(videoId);
     ctx.fillStyle = "#fff";
-    ctx.font = `80px ${font}`;
+    ctx.font = `80px "${font}", sans-serif`;
     ctx.textAlign = "center";
     ctx.fillText(urlText, 1280 / 2, 1100 + lines.length * 58 + 110);
 
@@ -251,7 +328,7 @@ function drawLargeImage(output, img, data, videoId) {
 
     // "Full Video on YouTube"
     const headline = 'Full Video on YouTube';
-    ctx.font = `110px ${font}`;
+    ctx.font = `110px "${font}", sans-serif`;
     ctx.fillStyle = "#eee";
     ctx.textAlign = "center";
     const x = canvas.width / 2;
@@ -273,7 +350,7 @@ function drawLargeImage(output, img, data, videoId) {
     // write the title
     ctx.textAlign = "left";
     ctx.fillStyle = "#eee";
-    ctx.font = `56px ${font}`;
+    ctx.font = `56px "${font}", sans-serif`;
     const lines = wrapText(ctx, data.title, 1240);
     lines.forEach((line, i) => {
         ctx.fillText(line, 20, 1100 + i * 56);
@@ -281,7 +358,7 @@ function drawLargeImage(output, img, data, videoId) {
 
     // write the author
     ctx.fillStyle = "#aaa";
-    ctx.font = `28px ${font}`;
+    ctx.font = `28px "${font}", sans-serif`;
     ctx.fillText(`YouTube: ${data.author_name}`, 20, 1100 + lines.length * 58 - 20);
 
     let a = base64img(`${videoId}-large-image.jpg`, canvas);
@@ -307,7 +384,7 @@ function drawBasicImage(output, img, data, videoId) {
 
     // write the title
     ctx.fillStyle = "#eee";
-    ctx.font = `56px ${font}`;
+    ctx.font = `56px "${font}", sans-serif`;
     let padding = 20;
     const lines = wrapText(ctx, title, 1280 - padding * 2);
     lines.forEach((line, i) => {
@@ -316,7 +393,7 @@ function drawBasicImage(output, img, data, videoId) {
 
     // write the author
     ctx.fillStyle = "#aaa";
-    ctx.font = `28px ${font}`;
+    ctx.font = `28px "${font}", sans-serif`;
     ctx.fillText(`YouTube: ${author}`, padding, 790 + lines.length * 58 - 20);
 
     let a = base64img(`${videoId}-basic-image.jpg`, canvas);
@@ -345,7 +422,7 @@ function drawBlurredImage(output, img, data, videoId) {
     // draw the centered URL text
     const urlText = shortUrl(videoId);
     ctx.fillStyle = "#fff";
-    ctx.font = `80px ${font}`;
+    ctx.font = `80px "${font}", sans-serif`;
     ctx.textAlign = "center";
     ctx.fillText(urlText, 1280 / 2, 720 / 2);
 

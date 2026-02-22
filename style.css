@@ -144,3 +144,7 @@ img.generated {
 canvas {
         display: none;
 }
+
+#font-input {
+	font-family: inherit;
+}
