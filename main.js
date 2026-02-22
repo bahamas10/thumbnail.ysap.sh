@@ -8,6 +8,7 @@
  *
  * # Contributors
  * - Dave Eddy <ysap@daveeddy.com>
+ * - Christian Hase <christian@hase.hamburg>
  */
 
 let lastVideoId = null;
@@ -68,10 +69,17 @@ function getYouTubeID(url) {
     }
 
     if (parsed.hostname === 'youtu.be') {
+        // youtu.be/video-id
         return parsed.pathname.slice(1);
     }
     if (parsed.hostname.includes('youtube.com')) {
-        return parsed.searchParams.get('v');
+        if (parsed.pathname.split('/').includes('live')) {
+            // youtube.com/live/video-id
+            return parsed.pathname.split('/')[2]
+        } else {
+            // youtube.com/watch?v=video-id
+            return parsed.searchParams.get('v');
+        }
     }
     fatal('failed to extract youtube ID from URL');
 }
@@ -104,7 +112,8 @@ async function generate() {
         return;
     }
 
-    const api = 'https://noembed.com/embed?url=' + encodeURIComponent(url);
+    // use shortUrl since Noembed doesn't support youtube.com/live URLs
+    const api = 'https://noembed.com/embed?url=' + encodeURIComponent(shortUrl(videoId));
 
     try {
         const res = await fetch(api);
