@@ -14,10 +14,8 @@
 	<head>
 		<meta charset="UTF-8">
 		<title>YouTube Social Image Generator</title>
-		<link rel="stylesheet" href="style.css?v=1">
-		<link rel="preconnect" href="https://fonts.googleapis.com">
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 		<link href="https://fonts.googleapis.com/css2?family=Fira+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+		<link rel="stylesheet" href="style.css?v=1">
 	</head>
 	<body>
 		<div id="container">
@@ -25,9 +23,31 @@
 			<br>
 			Input a YouTube URL and click <span class="highlight">Generate Images</span> to generate multiple images:
 			<br><br>
-			<input id="url-input" type="text" placeholder="Enter YouTube URL..." />
-			<button onclick="generate()">Generate Images</button>
-			<button onclick="downloadAll()" id="downloadBtn" style="display:none">Download All</button>
+
+			<div class="row">
+				<label for="url-input" class="input-label">URL:</label>
+				<input id="url-input" type="text" placeholder="Enter YouTube URL..." />
+
+				<label for="font-select" class="input-label">Font:</label>
+				<input id="font-select" type="text" list="font-options" placeholder="Choose a system font..." autocomplete="off" />
+				<datalist id="font-options"></datalist>
+			</div>
+			
+			<div class="actions">
+				<button onclick="generate()">Generate Images</button>
+				<div class="dropdown-container" id="downloadDropdown" style="display:none">
+					<button class="dropbtn" onclick="toggleDropdown()" aria-haspopup="true" aria-expanded="false">
+						<span>Download</span>
+						<span class="chevron">&#9660;</span>
+					</button>
+					<div id="myDropdown" class="dropdown-content">
+						<a href="#" onclick="downloadAll(); toggleDropdown(); return false;">Individual Files</a>
+						<a href="#" onclick="downloadZip(); toggleDropdown(); return false;">ZIP Archive</a>
+					</div>
+				</div>
+			</div>
+
+			<div id="font-status" role="status" aria-live="polite"></div>
 
 			<div id="output"></div>
 			<br><br><br>
@@ -48,6 +68,7 @@
                           </code></pre>
 		</div>
 
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha512-XMVd28F1oH/O71fzwBnV7HucLxVwWWfokXtGn/TeMzdSCYDiB+CvXWww5TG/46GLZ24CLv14bv+Qy7xLp1HjbA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 		<script src="main.js"></script>
 	</body>
 </html>

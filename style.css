@@ -59,6 +59,20 @@ ul {
 	.hide-mobile{
 		display: none;
 	}
+
+	input,
+	button {
+		width: 100%;
+		max-width: 100%;
+		box-sizing: border-box;
+	}
+
+	.input-label {
+		display: inline-block;
+		width: 100%;
+		text-align: left;
+		margin-top: 4px;
+	}
 }
 
 /* layout and design */
@@ -130,8 +144,122 @@ input {
 	width: 400px;
 }
 
+#font-select {
+	width: 280px;
+}
+
+.font-label, .input-label {
+	color: var(--color3);
+	margin-left: 8px;
+}
+
+.row {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 10px;
+	margin-bottom: 10px;
+}
+
+.actions {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 10px;
+}
+
+@media (max-width: 800px) {
+	.row {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+	
+	.input-label {
+		margin-left: 0;
+		margin-bottom: 5px;
+	}
+	
+	.actions {
+		flex-direction: column;
+	}
+	
+	.actions button {
+		width: 100%;
+		margin: 5px 0;
+	}
+}
+
+#font-status {
+	min-height: 18px;
+	margin-top: 6px;
+	color: var(--color2);
+	display: none;
+}
+
+#font-status.visible {
+	display: block;
+}
+
 button {
         width: 200px;
+}
+
+/* Download Dropdown */
+.dropdown-container {
+    position: relative;
+    display: inline-block;
+    vertical-align: top;
+    margin: 5px; 
+}
+
+.dropbtn {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px; 
+    width: 200px; 
+}
+
+.dropbtn span:first-child {
+    flex-grow: 1;
+    text-align: center;
+    padding-left: 10px; 
+}
+
+.chevron {
+    font-size: 10px;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #222;
+    min-width: 200px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.5);
+    z-index: 10;
+    top: 100%;
+    border: 1px solid #444;
+}
+
+/* Show the dropdown menu (use JS to toggle) */
+.dropdown-content.show {
+    display: block;
+}
+
+/* Links inside the dropdown */
+.dropdown-content a {
+    color: var(--color5);
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    text-align: left;
+}
+
+/* Change color of links on hover */
+.dropdown-content a:hover {
+    background-color: #333;
+    color: var(--color3); 
 }
 
 img.generated {
